@@ -1,10 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe, Logger } from '@nestjs/common';
+import { configSwagger } from './configs/swagger.config';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+  const logger = new Logger('Bootstrap');
 
   // 1. Kích hoạt Validation Pipe toàn cục
   app.useGlobalPipes(
@@ -16,18 +19,17 @@ async function bootstrap() {
   );
 
   // 2. Cấu hình Swagger
-  const config = new DocumentBuilder()
-    .setTitle('NestJS Master Project')
-    .setDescription('API Documentation')
-    .setVersion('1.0')
-    .addBearerAuth() // Để sau này test JWT
-    .build();
-
+  app.enableCors();
+  app.setGlobalPrefix('api/v1');
+  //Set up swagger
+  configSwagger(app);
+  //Start Server
   //http://localhost:3000/api/docs
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  const port = configService.get<number>('PORT') || 3000;
+  await app.listen(port);
 
-  await app.listen(process.env.PORT || 3000);
-  console.log(`Application is running on: ${await app.getUrl()}`);
+  const url = await app.getUrl();
+  logger.log(`Application is running on: ${url}`);
+  logger.log(`Swagger is running on: ${url}/docs`);
 }
 void bootstrap();

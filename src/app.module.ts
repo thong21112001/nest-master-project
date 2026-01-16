@@ -4,7 +4,7 @@ import { DatabaseModule } from './modules/databases/database.module';
 
 @Module({
   imports: [
-    // 1. Cấu hình ConfigModule để đọc file .env toàn cục (Global)
+    // 1. Cấu hình biến môi trường toàn cục
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
