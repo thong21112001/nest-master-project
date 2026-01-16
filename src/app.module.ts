@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './modules/databases/database.module';
+import { RolesModule } from './modules/roles/roles.module';
 
 @Module({
   imports: [
@@ -12,6 +13,8 @@ import { DatabaseModule } from './modules/databases/database.module';
 
     // 2. Kết nối Database
     DatabaseModule,
+
+    RolesModule,
   ],
   controllers: [],
   providers: [],
