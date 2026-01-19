@@ -24,12 +24,12 @@ async function bootstrap() {
   //Set up swagger
   configSwagger(app);
   //Start Server
-  //http://localhost:3000/api/docs
+  //http://localhost:3000/api-docs
   const port = configService.get<number>('PORT') || 3000;
   await app.listen(port);
 
   const url = await app.getUrl();
   logger.log(`Application is running on: ${url}`);
-  logger.log(`Swagger is running on: ${url}/docs`);
+  logger.log(`Swagger is running on: ${url}/api-docs`);
 }
 void bootstrap();
