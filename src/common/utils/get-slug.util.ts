@@ -1,24 +1,44 @@
 import slugify from 'slugify';
 
-/**
- * Chuyển đổi chuỗi thành slug URL thân thiện
- * @param text Chuỗi cần chuyển đổi
- * @returns Chuỗi slug (ví dụ: 'hello-world')
- */
-export const getSlug = (text: string): string => {
-  // 1. Kiểm tra đầu vào an toàn
-  if (!text || typeof text !== 'string') {
-    return '';
-  }
+export interface GetSlugOptions {
+  // Độ dài tối đa của slug. Nếu vượt quá, sẽ cắt ngắn ở dấu phân cách cuối cùng
+  truncate?: number;
 
-  // 2. Thực hiện convert
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-  const result = slugify(text, {
-    lower: true, // Chuyển thành chữ thường
-    locale: 'vi', // Hỗ trợ tiếng Việt (đ, ê, ư...)
-    strict: true, // Loại bỏ các ký tự đặc biệt
-    trim: true, // Xóa khoảng trắng đầu cuối
+  //Ký tự được sử dụng làm dấu phân cách (mặc định: '-')
+  replacement?: string;
+}
+
+/**
+ * Convert text to URL-friendly slug
+ *
+ * @param text - The text to convert to slug
+ * @param options - Optional configuration for slug generation
+ * @returns URL-friendly slug string
+ *
+ * @example
+ * getSlug('Hello World!') // 'hello-world'
+ * getSlug('This is a very long title', { truncate: 10 }) // 'this-is-a'
+ * getSlug('Hello World', { replacement: '_' }) // 'hello_world'
+ */
+export function getSlug(text: string, options?: GetSlugOptions): string {
+  const separator = options?.replacement ?? '-';
+
+  let result = slugify(text, {
+    remove: /[*+~.()'"!:@,]/g,
+    lower: true,
+    replacement: separator,
   });
 
-  return result as unknown as string;
-};
+  if (options?.truncate && options.truncate < result.length) {
+    const isLucky = result.charAt(options.truncate) === separator;
+    result = result.slice(0, options.truncate);
+
+    if (!isLucky) {
+      const lastSeparatorIndex = result.lastIndexOf(separator);
+      result =
+        lastSeparatorIndex > 0 ? result.slice(0, lastSeparatorIndex) : result;
+    }
+  }
+
+  return result;
+}
