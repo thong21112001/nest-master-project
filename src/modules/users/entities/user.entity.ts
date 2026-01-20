@@ -18,7 +18,7 @@ export class User {
   phone: string;
 
   @Prop({ select: false })
-  password: string;
+  password?: string;
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
