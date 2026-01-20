@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './modules/databases/database.module';
 import { RolesModule } from './modules/roles/roles.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -15,6 +16,8 @@ import { RolesModule } from './modules/roles/roles.module';
     DatabaseModule,
 
     RolesModule,
+
+    UsersModule,
   ],
   controllers: [],
   providers: [],
