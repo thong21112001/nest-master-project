@@ -2,7 +2,8 @@ import { Role } from 'src/modules/roles/entities/role.entity';
 
 export interface JwtPayload {
   sub: string; // UserId (Thay vì id)
-  email: string; // Email (Thay vì user)
+  phone: string; // Phone (Bắt buộc - vì login bằng phone)
+  email?: string; // Email (Có thể có hoặc không)
   role?: string; // Role ID
 }
 

@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument, Types } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { Gender } from 'src/common/enum/gender.enum';
 import { Status } from 'src/common/enum/status.enum';
 import { Role } from 'src/modules/roles/entities/role.entity';
@@ -12,7 +12,7 @@ export class User {
   username: string;
 
   @Prop({ required: true, lowercase: true, index: true, unique: true })
-  email?: string;
+  email: string;
 
   @Prop({ required: true, index: true, unique: true })
   phone: string;
@@ -55,12 +55,10 @@ export class User {
   @Prop({ default: true })
   isActive: boolean;
 
-  @Prop([
-    {
-      type: String,
-    },
-  ])
-  refreshToken?: Types.Array<string>;
+  // BASE CHUẨN: Lưu hashed refresh token (String, không phải Array)
+  // Nếu muốn login nhiều thiết bị -> Nên tách bảng UserSessions riêng
+  @Prop({ select: false })
+  refreshToken?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

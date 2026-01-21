@@ -1,34 +1,58 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { LoginDto } from './dto/login-auth.dto';
+import { Public } from 'src/common/decorators/public.decorator';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { RegisterDto } from './dto/register-auth.dto';
+import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import type { UserDocument } from '../users/entities/user.entity';
+import { BearerJwt } from 'src/common/decorators/bearer-jwt.decorator';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
+  @Public()
+  @Post('register')
+  @ApiOperation({ summary: 'Register new user' })
+  register(@Body() dto: RegisterDto) {
+    return this.authService.register(dto);
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
+  @Public()
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Login with Phone & Password' })
+  login(@Body() dto: LoginDto) {
+    return this.authService.login(dto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
+  @Public()
+  @UseGuards(JwtRefreshGuard)
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Refresh Access Token' })
+  refreshTokens(@CurrentUser() user: UserDocument & { refreshToken: string }) {
+    return this.authService.refreshTokens(
+      user._id.toString(),
+      user.refreshToken,
+    );
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+  @Post('logout')
+  @BearerJwt()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Logout (Revoke Refresh Token)' })
+  logout(@CurrentUser() user: UserDocument) {
+    return this.authService.logout(user._id.toString());
   }
 }

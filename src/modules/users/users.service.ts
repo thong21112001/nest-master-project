@@ -106,18 +106,23 @@ export class UsersService {
     return { message: 'User deleted successfully' };
   }
 
-  // Hàm tìm user để Auth Module dùng (login)
-  async findByUsername(username: string): Promise<UserDocument | null> {
+  // Dùng cho Login (Lấy password hash)
+  async findByPhone(phone: string): Promise<UserDocument | null> {
     return this.userModel
-      .findOne({ username })
-      .populate('role')
+      .findOne({ phone })
       .select('+password')
+      .populate('role')
       .exec();
+  }
+
+  // Cập nhật lại token
+  async updateRefreshToken(userId: string, refreshToken: string | null) {
+    return this.userModel.findByIdAndUpdate(userId, { refreshToken });
   }
 
   // Helper xóa field nhạy cảm
   private sanitizeUser(user: UserDocument): Partial<UserDocument> {
-    const obj = user.toObject ? user.toObject() : { ...user };
+    const obj = user.toObject();
     delete obj.password;
     delete obj.refreshToken;
     return obj;
